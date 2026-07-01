@@ -1,6 +1,7 @@
 package org.example.notificationservice.service;
 
-import org.example.notificationservice.events.OrderStatusChangedEvent;
+import org.example.orderservice.events.OrderStatusChangedEvent;
+import org.springframework.context.event.EventListener;
 
 /**
  * Notification service's inbound entry point — reacts when an order's
@@ -13,5 +14,6 @@ public interface OrderEventConsumer {
      * Internally calls OrderStatusNotifier.notifyStatusChange()
      * with the orderId and newStatus taken from the event.
      */
+    @EventListener
     void onStatusChanged(OrderStatusChangedEvent event);
 }

@@ -1,6 +1,7 @@
 package org.example.warhouseservice.services;
 
 import org.example.warhouseservice.events.OrderCreatedEvent;
+import org.springframework.context.event.EventListener;
 
 /**
  * Warehouse service's inbound listener — reacts when a new order
@@ -9,5 +10,6 @@ import org.example.warhouseservice.events.OrderCreatedEvent;
  */
 public interface WarehouseOrderListener {
 
+    @EventListener
     void onOrderCreated(OrderCreatedEvent event);
 }

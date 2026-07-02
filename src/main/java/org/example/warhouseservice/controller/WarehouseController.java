@@ -17,7 +17,7 @@ public class WarehouseController {
         this.warehouseService = warehouseService;
     }
 
-    @PostMapping("/orders/submit")
+    @PostMapping("/order/submit")
     public void submitDecision(@RequestBody WarehouseDecisionRequest request) {
         warehouseService.recordDecision(request.orderId(), request.decision());
     }

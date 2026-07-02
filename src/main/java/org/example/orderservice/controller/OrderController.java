@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * not HTTP — see OrderStatusUpdateListener.
  */
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/order")
 public class OrderController {
 
     private final OrderService orderService;

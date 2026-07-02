@@ -40,12 +40,12 @@ component "Kafka" as kafka <<broker>>
 database "Order DB" as orderDb
 database "Inventory DB" as inventoryDb
 
-client -down-> lb : POST /orders
+client -down-> lb : POST /order
 lb -down-> gateway
 gateway -down-> orderService
 orderService -down-> orderDb : save order
 
-shopApp -down-> lb : POST /warehouse/orders/submit\n(ACCEPTED or CANCELLED)
+shopApp -down-> lb : POST /warehouse/order/submit\n(ACCEPTED or CANCELLED)
 gateway -down-> warehouseService
 warehouseService -down-> inventoryDb : update stock if ACCEPTED
 
@@ -63,14 +63,14 @@ notificationService -up-> client : SSE real-time update
 ## Flow
 
 ### Customer places an order
-1. Customer App sends `POST /orders` → Load Balancer → API Gateway → Order Service
+1. Customer App sends `POST /order` → Load Balancer → API Gateway → Order Service
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
 ### Shop worker processes the order
 4. Warehouse Service consumes `OrderCreatedEvent` from Kafka
 5. Shop worker checks physical stock in the warehouse
-6. Shop App sends decision `POST /warehouse/orders/submit` with `ACCEPTED` or `CANCELLED`
+6. Shop App sends decision `POST /warehouse/order/submit` with `ACCEPTED` or `CANCELLED`
 7. Warehouse Service:
     - If `ACCEPTED` → reserves stock in Inventory DB
     - If `CANCELLED` → no stock update needed
@@ -127,9 +127,9 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 
 | Method | Endpoint | Service | Called by |
 |---|---|---|---|
-| `POST` | `/orders` | Order Service | Customer App |
-| `POST` | `/warehouse/orders/submit` | Warehouse Service | Shop App |
-| `GET` | `/notifications/orders/{id}/status` | Notification Service | Customer App (SSE) |
+| `POST` | `/order` | Order Service | Customer App |
+| `POST` | `/warehouse/order/submit` | Warehouse Service | Shop App |
+| `GET` | `/notifications/order/{id}/status` | Notification Service | Customer App (SSE) |
 
 ## Design Decisions
 

@@ -19,7 +19,7 @@ public class NotificationController {
     }
 
     @GetMapping(
-            value = "/orders/{orderId}/status",
+            value = "/order/{orderId}/status",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE
     )
     public SseEmitter subscribeToOrder(@PathVariable Long orderId) {

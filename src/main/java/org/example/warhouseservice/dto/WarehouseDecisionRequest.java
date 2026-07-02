@@ -4,7 +4,7 @@ import org.example.orderservice.dto.OrderStatus;
 
 /**
  * Shop worker's decision after physically checking stock for an order.
- * Sent by the Shop App via POST /warehouse/orders/submit.
+ * Sent by the Shop App via POST /warehouse/order/submit.
  */
 public record WarehouseDecisionRequest(
 

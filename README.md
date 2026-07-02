@@ -15,7 +15,6 @@ skinparam backgroundColor #FFFFFF
 skinparam componentStyle rectangle
 skinparam ArrowColor #555555
 skinparam defaultFontSize 12
-
 skinparam component {
   BackgroundColor<<service>> #DAE8FC
   BorderColor<<service>> #6C8EBF
@@ -29,41 +28,54 @@ skinparam database {
   BorderColor #B85450
 }
 
-component "Customer App\n(mobile)" as client <<external>>
-component "Shop App\n(warehouse computer)" as shopApp <<external>>
+' ── ROW 1: Client ──
+component "Web App\n(customer + shop worker)" as client <<external>>
+
+' ── DNS (lookup only, not in traffic path) ──
+note "DNS resolves domain → LB IP\nApp calls LB directly" as dns
+client .. dns
+
+' ── ROW 2: Entry ──
 component "Load Balancer" as lb <<external>>
 component "API Gateway" as gateway <<external>>
+
+' ── ROW 3: Services ──
 component "Order Service" as orderService <<service>>
 component "Warehouse Service" as warehouseService <<service>>
 component "Notification Service" as notificationService <<service>>
+
+' ── ROW 4: Kafka ──
 component "Kafka" as kafka <<broker>>
+
+' ── ROW 5: Databases ──
 database "Order DB" as orderDb
 database "Inventory DB" as inventoryDb
 
-client -down-> lb : POST /order
+' ── FLOW ──
+client -down-> lb : POST /order/submit
+client -down-> lb : POST /warehouse/order/submit
 lb -down-> gateway
-gateway -down-> orderService
+gateway -down-> orderService : POST /order/submit
+gateway -down-> warehouseService : POST /warehouse/order/submit
 orderService -down-> orderDb : save order
-
-shopApp -down-> lb : POST /warehouse/order/submit\n(ACCEPTED or CANCELLED)
-gateway -down-> warehouseService
 warehouseService -down-> inventoryDb : update stock if ACCEPTED
 
 orderService -right-> kafka : OrderCreatedEvent
 kafka -down-> warehouseService : OrderCreatedEvent
-warehouseService -right-> kafka : WarehouseDecisionEvent\n(ACCEPTED or CANCELLED)
+warehouseService -right-> kafka : WarehouseDecisionEvent
 kafka -up-> orderService : WarehouseDecisionEvent
 orderService -down-> kafka : OrderStatusChangedEvent
 kafka -right-> notificationService : OrderStatusChangedEvent
 
-notificationService -up-> client : SSE real-time update
+notificationService -up-> client : SSE status update
+
 @enduml
 ```
 
 ## Flow
 
 ### Customer places an order
-1. Customer App sends `POST /order` → Load Balancer → API Gateway → Order Service
+1. Customer App sends `POST /order/submit` → Load Balancer → API Gateway → Order Service
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
@@ -127,7 +139,7 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 
 | Method | Endpoint | Service | Called by |
 |---|---|---|---|
-| `POST` | `/order` | Order Service | Customer App |
+| `POST` | `/order/submit` | Order Service | Customer App |
 | `POST` | `/warehouse/order/submit` | Warehouse Service | Shop App |
 | `GET` | `/notifications/order/{id}/status` | Notification Service | Customer App (SSE) |
 

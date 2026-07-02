@@ -3,7 +3,7 @@ package org.example.warhouseservice.dto;
 import org.example.orderservice.dto.OrderStatus;
 
 /**
- * Shop worker's decision after physically checking stock for an order.
+ * Admin's decision after checking stock availability in the Inventory DB.
  * Sent by the Shop App via POST /warehouse/order/submit.
  */
 public record WarehouseDecisionRequest(

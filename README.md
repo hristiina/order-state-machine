@@ -67,9 +67,9 @@ notificationService -up-> client : SSE real-time update
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
-### Shop worker processes the order
+### Admin processes the order
 4. Warehouse Service consumes `OrderCreatedEvent` from Kafka
-5. Shop worker checks physical stock in the warehouse
+5. Admin checks stock availability in the Inventory DB
 6. Shop App sends decision `POST /warehouse/order/submit` with `ACCEPTED` or `CANCELLED`
 7. Warehouse Service:
     - If `ACCEPTED` → reserves stock in Inventory DB
@@ -143,7 +143,7 @@ Order status updates are one-directional — server pushes to customer, customer
 Tracks stock levels to prevent overselling. When two orders arrive simultaneously for the same product, only the first ACCEPTED order reserves the stock.
 
 **Who decides ACCEPTED or CANCELLED?**
-The Shop worker decides based on physical stock check. The Shop App sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
+The Admin decides based on stock availability in the Inventory DB. The Shop App sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
 
 **Why interfaces?**
 Clean separation of contract from implementation. Easy to test and mock independently. Standard Spring Boot pattern.

@@ -1,6 +1,6 @@
 package org.example.notificationservice.service;
 
-import org.example.orderservice.events.OrderStatusChangedEvent;
+import org.example.orderservice.event.OrderStatusChangedEvent;
 
 /**
  * Notification service's inbound entry point — reacts when an order's

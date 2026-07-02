@@ -11,7 +11,6 @@ public record OrderRequest(
 
         Long productId,
         Long customerId,
-        int quantity,
         BigDecimal price
 
 ) {}

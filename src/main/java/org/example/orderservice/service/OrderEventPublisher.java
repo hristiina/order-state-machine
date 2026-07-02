@@ -1,6 +1,6 @@
-package org.example.orderservice.services;
+package org.example.orderservice.service;
 
-import org.example.orderservice.events.OrderStatusChangedEvent;
+import org.example.orderservice.event.OrderStatusChangedEvent;
 
 /**
  * Publishes an event whenever an order's status changes,

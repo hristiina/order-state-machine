@@ -1,4 +1,4 @@
-package org.example.orderservice.services;
+package org.example.orderservice.service;
 
 import org.example.orderservice.dto.OrderRequest;
 import org.example.orderservice.dto.OrderResponse;

@@ -1,6 +1,6 @@
-package org.example.orderservice.services;
+package org.example.orderservice.service;
 
-import org.example.orderservice.events.WarehouseDecisionEvent;
+import org.example.orderservice.event.WarehouseDecisionEvent;
 
 /**
  * Listens for status decision events published by warehouse service

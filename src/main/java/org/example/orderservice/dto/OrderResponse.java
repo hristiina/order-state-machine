@@ -12,8 +12,6 @@ public record OrderResponse(
 
         OrderStatus status,
 
-        /** Total is only meaningful once items/pricing are resolved;
-         *  useful on creation, less so on a pure status update. */
         BigDecimal totalAmount
 
 ) {

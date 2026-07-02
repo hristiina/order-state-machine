@@ -1,4 +1,4 @@
-package org.example.warhouseservice.events;
+package org.example.warhouseservice.event;
 
 /**
  * Published by order service when a new order is first created.
@@ -9,8 +9,6 @@ public record OrderCreatedEvent(
 
         Long orderId,
 
-        Long productId,
-
-        int quantity
+        Long productId
 
 ) {}

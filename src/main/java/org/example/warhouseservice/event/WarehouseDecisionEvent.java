@@ -1,4 +1,4 @@
-package org.example.warhouseservice.events;
+package org.example.warhouseservice.event;
 
 import org.example.orderservice.dto.OrderStatus;
 

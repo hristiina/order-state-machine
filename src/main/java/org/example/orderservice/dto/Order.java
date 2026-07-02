@@ -11,7 +11,6 @@ public class Order {
     private Long id;
     private Long customerId;
     private Long productId;
-    private int quantity;
     private BigDecimal price;
     private OrderStatus status;
     private Instant createdAt;
@@ -34,14 +33,6 @@ public class Order {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public Long getProductId() {

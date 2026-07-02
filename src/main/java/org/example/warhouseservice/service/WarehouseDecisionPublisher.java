@@ -1,6 +1,6 @@
-package org.example.warhouseservice.services;
+package org.example.warhouseservice.service;
 
-import org.example.orderservice.events.WarehouseDecisionEvent;
+import org.example.orderservice.event.WarehouseDecisionEvent;
 
 /**
  * Publishes warehouse's decision after checking stock.

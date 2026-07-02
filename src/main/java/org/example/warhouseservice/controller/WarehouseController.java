@@ -1,12 +1,11 @@
 package org.example.warhouseservice.controller;
 
-import org.example.warhouseservice.event.OrderCreatedEvent;
+import org.example.warhouseservice.dto.WarehouseDecisionRequest;
 import org.example.warhouseservice.service.WarehouseService;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Shop App calls this to process and update order status.
- * Entry point for warehouse workers updating order progress.
+ * Shop App calls this to submit the shop worker's stock decision for an order.
  */
 @RestController
 @RequestMapping("/warehouse")
@@ -18,8 +17,8 @@ public class WarehouseController {
         this.warehouseService = warehouseService;
     }
 
-    @PostMapping("/orders/evaluate")
-    public void evaluateOrder(@RequestBody OrderCreatedEvent event) {
-        warehouseService.evaluateOrder(event);
+    @PostMapping("/orders/submit")
+    public void submitDecision(@RequestBody WarehouseDecisionRequest request) {
+        warehouseService.recordDecision(request.orderId(), request.decision());
     }
 }

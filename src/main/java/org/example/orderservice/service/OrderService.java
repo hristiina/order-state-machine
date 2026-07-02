@@ -9,7 +9,8 @@ import org.example.orderservice.dto.OrderStatus;
  * The only service allowed to write to order data.
  */
 public interface OrderService {
-    /** Creates the order with status CREATED and persists it. */
+    /** Creates the order with status CREATED, persists it, and
+     *  publishes an OrderCreatedEvent via OrderEventPublisher. */
     OrderResponse createOrder(OrderRequest request);
     /** Validates and applies a status transition, then persists it. */
     OrderResponse updateStatus(Long orderId, OrderStatus newStatus);

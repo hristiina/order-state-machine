@@ -4,8 +4,8 @@ import org.example.warhouseservice.event.OrderCreatedEvent;
 
 /**
  * Warehouse service's inbound listener — reacts when a new order
- * is created and decides whether stock supports it.
- * calls WarehouseService.evaluateOrder(event)
+ * is created, making it visible to shop workers for a stock check.
+ * calls WarehouseService.registerNewOrder(event)
  */
 public interface WarehouseOrderListener {
 

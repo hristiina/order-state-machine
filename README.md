@@ -53,10 +53,10 @@ database "Inventory DB" as inventoryDb
 
 ' ── FLOW ──
 client -down-> lb : POST /order
-client -down-> lb : POST /warehouse/order/submit
+client -down-> lb : POST /warehouse/order
 lb -down-> gateway
 gateway -down-> orderService : POST /order
-gateway -down-> warehouseService : POST /warehouse/order/submit
+gateway -down-> warehouseService : POST /warehouse/order
 orderService -down-> orderDb : save order
 warehouseService -down-> inventoryDb : update stock if ACCEPTED
 
@@ -82,7 +82,7 @@ notificationService -up-> client : SSE status update
 ### Admin processes the order
 4. Warehouse Service consumes `OrderCreatedEvent` from Kafka
 5. Admin checks stock availability in the Inventory DB
-6. Shop App sends decision `POST /warehouse/order/submit` with `ACCEPTED` or `CANCELLED`
+6. Shop App sends decision `POST /warehouse/order` with `ACCEPTED` or `CANCELLED`
 7. Warehouse Service:
     - If `ACCEPTED` → reserves stock in Inventory DB
     - If `CANCELLED` → no stock update needed
@@ -140,7 +140,7 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 | Method | Endpoint | Service | Called by |
 |---|---|---|---|
 | `POST` | `/order` | Order Service | Customer App |
-| `POST` | `/warehouse/order/submit` | Warehouse Service | Shop App |
+| `POST` | `/warehouse/order` | Warehouse Service | Shop App |
 | `GET` | `/notifications/order/{id}/status` | Notification Service | Customer App (SSE) |
 
 ## Design Decisions

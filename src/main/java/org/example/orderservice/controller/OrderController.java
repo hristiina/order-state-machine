@@ -23,7 +23,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/submit")
+    @PostMapping
     public OrderResponse createOrder(@RequestBody OrderRequest request) {
         return orderService.createOrder(request);
     }

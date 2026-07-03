@@ -5,6 +5,9 @@ import org.example.orderservice.event.OrderStatusChangedEvent;
 /**
  * Notification service's inbound entry point — reacts when an order's
  * status has changed and forwards it to the notifier.
+ *
+ * <p>Intended to be implemented as a {@code @KafkaListener} on topic
+ * {@code order-status-changed} — see OrderStatusChangedEvent.
  */
 public interface OrderEventConsumer {
 

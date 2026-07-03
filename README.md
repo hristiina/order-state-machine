@@ -52,10 +52,10 @@ database "Order DB" as orderDb
 database "Inventory DB" as inventoryDb
 
 ' ── FLOW ──
-client -down-> lb : POST /order/submit
+client -down-> lb : POST /order
 client -down-> lb : POST /warehouse/order/submit
 lb -down-> gateway
-gateway -down-> orderService : POST /order/submit
+gateway -down-> orderService : POST /order
 gateway -down-> warehouseService : POST /warehouse/order/submit
 orderService -down-> orderDb : save order
 warehouseService -down-> inventoryDb : update stock if ACCEPTED
@@ -75,7 +75,7 @@ notificationService -up-> client : SSE status update
 ## Flow
 
 ### Customer places an order
-1. Customer App sends `POST /order/submit` → Load Balancer → API Gateway → Order Service
+1. Customer App sends `POST /order` → Load Balancer → API Gateway → Order Service
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
@@ -139,7 +139,7 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 
 | Method | Endpoint | Service | Called by |
 |---|---|---|---|
-| `POST` | `/order/submit` | Order Service | Customer App |
+| `POST` | `/order` | Order Service | Customer App |
 | `POST` | `/warehouse/order/submit` | Warehouse Service | Shop App |
 | `GET` | `/notifications/order/{id}/status` | Notification Service | Customer App (SSE) |
 

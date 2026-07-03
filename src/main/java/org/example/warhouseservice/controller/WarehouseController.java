@@ -5,7 +5,7 @@ import org.example.warhouseservice.service.WarehouseService;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Shop App calls this to submit the admin's stock decision for an order.
+ * Called from the Web App's admin page to submit the admin's stock decision for an order.
  */
 @RestController
 @RequestMapping("/warehouse")

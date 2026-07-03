@@ -4,7 +4,7 @@ import org.example.orderservice.dto.OrderStatus;
 
 /**
  * Admin's decision after checking stock availability in the Inventory DB.
- * Sent by the Shop App via POST /warehouse/order.
+ * Sent by the Web App's admin page via POST /warehouse/order.
  */
 public record WarehouseDecisionRequest(
 

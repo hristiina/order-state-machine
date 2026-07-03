@@ -75,14 +75,14 @@ notificationService -up-> client : SSE status update
 ## Flow
 
 ### Customer places an order
-1. Customer App sends `POST /order` → Load Balancer → API Gateway → Order Service
+1. Web App (customer page) sends `POST /order` → Load Balancer → API Gateway → Order Service
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
 ### Admin processes the order
 4. Warehouse Service consumes `OrderCreatedEvent` from Kafka
 5. Admin checks stock availability in the Inventory DB
-6. Shop App sends decision `POST /warehouse/order` with `ACCEPTED` or `CANCELLED`
+6. Web App (admin page) sends decision `POST /warehouse/order` with `ACCEPTED` or `CANCELLED`
 7. Warehouse Service:
     - If `ACCEPTED` → reserves stock in Inventory DB
     - If `CANCELLED` → no stock update needed
@@ -95,7 +95,7 @@ notificationService -up-> client : SSE status update
 
 ### Customer receives real-time update
 12. Notification Service consumes `OrderStatusChangedEvent`
-13. Notification Service pushes update to Customer App via SSE
+13. Notification Service pushes update to Web App (customer page) via SSE
 14. Customer sees: "Your order has been ACCEPTED" or "Your order has been CANCELLED — item not in stock"
 
 ## Order State Machine
@@ -120,12 +120,12 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 - `WarehouseService` — receives shop decision, updates inventory if accepted
 - `WarehouseOrderListener` — consumes OrderCreatedEvent from Kafka
 - `WarehouseDecisionPublisher` — publishes decisions to Kafka
-- `WarehouseController` — REST endpoint for Shop App to submit decisions
+- `WarehouseController` — REST endpoint for the Web App's admin page to submit decisions
 
 ### Notification Service
 - `OrderStatusNotifier` — manages SSE connections, pushes updates to customers
 - `OrderEventConsumer` — consumes OrderStatusChangedEvent from Kafka
-- `NotificationController` — SSE endpoint for Customer App to subscribe
+- `NotificationController` — SSE endpoint for the Web App's customer page to subscribe
 
 ## Kafka Events
 
@@ -139,9 +139,9 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 
 | Method | Endpoint | Service | Called by |
 |---|---|---|---|
-| `POST` | `/order` | Order Service | Customer App |
-| `POST` | `/warehouse/order` | Warehouse Service | Shop App |
-| `GET` | `/notifications/order/{id}/status` | Notification Service | Customer App (SSE) |
+| `POST` | `/order` | Order Service | Web App (customer page) |
+| `POST` | `/warehouse/order` | Warehouse Service | Web App (admin page) |
+| `GET` | `/notifications/order/{id}/status` | Notification Service | Web App (customer page, SSE) |
 
 ## Design Decisions
 
@@ -155,7 +155,7 @@ Order status updates are one-directional — server pushes to customer, customer
 Tracks stock levels to prevent overselling. When two orders arrive simultaneously for the same product, only the first ACCEPTED order reserves the stock.
 
 **Who decides ACCEPTED or CANCELLED?**
-The Admin decides based on stock availability in the Inventory DB. The Shop App sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
+The Admin decides based on stock availability in the Inventory DB. The Web App's admin page sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
 
 **Why interfaces?**
 Clean separation of contract from implementation. Easy to test and mock independently. Standard Spring Boot pattern.

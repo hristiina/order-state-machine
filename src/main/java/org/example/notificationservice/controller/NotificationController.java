@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * Customer app subscribes here to receive real-time order updates.
+ * The Web App's customer page subscribes here to receive real-time order updates.
  */
 @RestController
 @RequestMapping("/notifications")

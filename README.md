@@ -131,6 +131,13 @@ Tracks stock levels to prevent overselling. When two orders arrive simultaneousl
 **Who decides ACCEPTED or CANCELLED?**
 The Admin or Shop Assistant decides based on stock availability in the Inventory DB. The Web App's admin page sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
 
+**How would this handle Amazon-scale volume (millions of orders)?**
+Human review doesn't scale linearly with order volume — more admins only add so much throughput, and no realistic team keeps up with millions of orders. Using microservices doesn't change that either: running more `WarehouseService` replicas scales compute, not admin-hours. At real scale, the fix is a fast automatic path plus an exception-only human queue:
+- **Automatic path (default):** on `OrderCreatedEvent`, attempt an atomic conditional stock decrement — `UPDATE inventory SET stock = stock - 1 WHERE product_id = ? AND stock > 0`. One row affected → auto-ACCEPTED; zero rows → auto-CANCELLED. The database's own atomicity on that single statement is what prevents overselling under concurrency, without needing a distributed lock.
+- **Human review (exception only):** only route to the Admin/Shop Assistant queue when the automatic check can't confidently decide — e.g. stock hasn't been physically verified recently, a fraud/risk flag, high-value or custom items, backorder decisions. That's a small fraction of total volume.
+- This barely changes the existing interfaces: `WarehouseController`, `WarehouseDecisionRequest`, and `WarehouseService.recordDecision()` stay as-is and become the exception-queue path instead of the only path. Only `WarehouseOrderListener.onOrderCreated` → `WarehouseService.registerNewOrder()` changes behavior — it attempts the automatic decision first, falling back to the admin queue only when inconclusive.
+- Two things this introduces: the automatic decrement must be idempotent (Kafka's at-least-once delivery could redeliver the same `OrderCreatedEvent`), and the Inventory DB itself needs to handle high write concurrency at real scale (sharding by product/warehouse, or a fast in-memory layer like Redis in front of the durable store).
+
 **Why interfaces?**
 Clean separation of contract from implementation. Easy to test and mock independently. Standard Spring Boot pattern.
 

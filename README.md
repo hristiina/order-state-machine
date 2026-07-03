@@ -9,67 +9,41 @@ A Spring Boot system for real-time order tracking with three core services:
 
 ## Architecture
 
-```plantuml
-@startuml order_system_design
-skinparam backgroundColor #FFFFFF
-skinparam componentStyle rectangle
-skinparam ArrowColor #555555
-skinparam defaultFontSize 12
-skinparam component {
-  BackgroundColor<<service>> #DAE8FC
-  BorderColor<<service>> #6C8EBF
-  BackgroundColor<<broker>> #FFF2CC
-  BorderColor<<broker>> #D6B656
-  BackgroundColor<<external>> #F5F5F5
-  BorderColor<<external>> #666666
-}
-skinparam database {
-  BackgroundColor #F8CECC
-  BorderColor #B85450
-}
+```mermaid
+flowchart TB
+    classDef service fill:#DAE8FC,stroke:#6C8EBF
+    classDef broker fill:#FFF2CC,stroke:#D6B656
+    classDef external fill:#F5F5F5,stroke:#666666
+    classDef db fill:#F8CECC,stroke:#B85450
 
-' ── ROW 1: Client ──
-component "Web App\n(customer + admin/shop assistant)" as client <<external>>
+    client["Web App<br/>(customer + admin/shop assistant)"]:::external
+    dns["DNS resolves domain → LB IP<br/>(lookup only, not in traffic path)"]:::external
+    lb["Load Balancer"]:::external
+    gateway["API Gateway"]:::external
+    orderService["Order Service"]:::service
+    warehouseService["Warehouse Service"]:::service
+    notificationService["Notification Service"]:::service
+    kafka(["Kafka"]):::broker
+    orderDb[("Order DB")]:::db
+    inventoryDb[("Inventory DB")]:::db
 
-' ── DNS (lookup only, not in traffic path) ──
-note "DNS resolves domain → LB IP\nApp calls LB directly" as dns
-client .. dns
+    client -.-> dns
+    client -->|"POST /order"| lb
+    client -->|"POST /warehouse/order"| lb
+    lb --> gateway
+    gateway -->|"POST /order"| orderService
+    gateway -->|"POST /warehouse/order"| warehouseService
+    orderService -->|"save order"| orderDb
+    warehouseService -->|"update stock if ACCEPTED"| inventoryDb
 
-' ── ROW 2: Entry ──
-component "Load Balancer" as lb <<external>>
-component "API Gateway" as gateway <<external>>
+    orderService -->|"OrderCreatedEvent"| kafka
+    kafka -->|"OrderCreatedEvent"| warehouseService
+    warehouseService -->|"WarehouseDecisionEvent"| kafka
+    kafka -->|"WarehouseDecisionEvent"| orderService
+    orderService -->|"OrderStatusChangedEvent"| kafka
+    kafka -->|"OrderStatusChangedEvent"| notificationService
 
-' ── ROW 3: Services ──
-component "Order Service" as orderService <<service>>
-component "Warehouse Service" as warehouseService <<service>>
-component "Notification Service" as notificationService <<service>>
-
-' ── ROW 4: Kafka ──
-component "Kafka" as kafka <<broker>>
-
-' ── ROW 5: Databases ──
-database "Order DB" as orderDb
-database "Inventory DB" as inventoryDb
-
-' ── FLOW ──
-client -down-> lb : POST /order
-client -down-> lb : POST /warehouse/order
-lb -down-> gateway
-gateway -down-> orderService : POST /order
-gateway -down-> warehouseService : POST /warehouse/order
-orderService -down-> orderDb : save order
-warehouseService -down-> inventoryDb : update stock if ACCEPTED
-
-orderService -right-> kafka : OrderCreatedEvent
-kafka -down-> warehouseService : OrderCreatedEvent
-warehouseService -right-> kafka : WarehouseDecisionEvent
-kafka -up-> orderService : WarehouseDecisionEvent
-orderService -down-> kafka : OrderStatusChangedEvent
-kafka -right-> notificationService : OrderStatusChangedEvent
-
-notificationService -up-> client : SSE status update
-
-@enduml
+    notificationService -->|"SSE status update"| client
 ```
 
 ## Flow

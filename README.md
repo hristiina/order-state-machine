@@ -70,7 +70,7 @@ flowchart TB
 ### Customer receives real-time update
 12. Notification Service consumes `OrderStatusChangedEvent`
 13. Notification Service pushes update to Web App (customer page) via SSE
-14. Customer sees: "Your order has been ACCEPTED" or "Your order has been CANCELLED — item not in stock"
+14. Customer sees each update as it happens: "Your order has been ACCEPTED", "Your order is IN_PROCESS", "Your order has been DELIVERED", or "Your order has been CANCELLED — item not in stock"
 
 ## Order State Machine
 

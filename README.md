@@ -79,9 +79,9 @@ notificationService -up-> client : SSE status update
 2. Order Service saves order with status `CREATED` → Order DB
 3. Order Service publishes `OrderCreatedEvent` to Kafka
 
-### Admin processes the order
+### Admin or Shop Assistant processes the order
 4. Warehouse Service consumes `OrderCreatedEvent` from Kafka
-5. Admin checks stock availability in the Inventory DB
+5. Admin or Shop Assistant checks stock availability in the Inventory DB
 6. Web App (admin page) sends decision `POST /warehouse/order` with `ACCEPTED` or `CANCELLED`
 7. Warehouse Service:
     - If `ACCEPTED` → reserves stock in Inventory DB
@@ -117,7 +117,7 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 - `OrderController` — REST endpoint for customer to place orders
 
 ### Warehouse Service
-- `WarehouseService` — receives shop decision, updates inventory if accepted
+- `WarehouseService` — receives Admin or Shop Assistant's decision, updates inventory if accepted
 - `WarehouseOrderListener` — consumes OrderCreatedEvent from Kafka
 - `WarehouseDecisionPublisher` — publishes decisions to Kafka
 - `WarehouseController` — REST endpoint for the Web App's admin page to submit decisions
@@ -132,7 +132,7 @@ Transitions validated by `OrderStatus.canTransitionTo()` — illegal transitions
 | Event | Producer | Consumer | Description |
 |---|---|---|---|
 | `OrderCreatedEvent` | Order Service | Warehouse Service | New order placed by customer |
-| `WarehouseDecisionEvent` | Warehouse Service | Order Service | Shop decision: ACCEPTED or CANCELLED |
+| `WarehouseDecisionEvent` | Warehouse Service | Order Service | Admin or Shop Assistant's decision: ACCEPTED or CANCELLED |
 | `OrderStatusChangedEvent` | Order Service | Notification Service | Status update to push to customer |
 
 ## API Endpoints
@@ -155,7 +155,7 @@ Order status updates are one-directional — server pushes to customer, customer
 Tracks stock levels to prevent overselling. When two orders arrive simultaneously for the same product, only the first ACCEPTED order reserves the stock.
 
 **Who decides ACCEPTED or CANCELLED?**
-The Admin decides based on stock availability in the Inventory DB. The Web App's admin page sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
+The Admin or Shop Assistant decides based on stock availability in the Inventory DB. The Web App's admin page sends the decision to Warehouse Service — the system does not auto-cancel. This keeps the human in the loop for stock decisions.
 
 **Why interfaces?**
 Clean separation of contract from implementation. Easy to test and mock independently. Standard Spring Boot pattern.

@@ -10,7 +10,7 @@ public interface WarehouseDecisionPublisher {
     /**
      * Publishes warehouse's stock decision so order service can apply
      * the resulting status transition. Called at the end of
-     * WarehouseService.evaluateOrder(), once the decision is final.
+     * WarehouseService.recordDecision(), once the decision is final.
      *
      * @param event the decision to publish (orderId + requestedStatus)
      */

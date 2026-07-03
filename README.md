@@ -29,7 +29,7 @@ skinparam database {
 }
 
 ' ── ROW 1: Client ──
-component "Web App\n(customer + shop worker)" as client <<external>>
+component "Web App\n(customer + admin/shop assistant)" as client <<external>>
 
 ' ── DNS (lookup only, not in traffic path) ──
 note "DNS resolves domain → LB IP\nApp calls LB directly" as dns
